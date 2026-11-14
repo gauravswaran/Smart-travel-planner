@@ -24,7 +24,8 @@ app.get("/", (req, res) => {
 app.use("/api/trips", tripRoutes);
 
 // MongoDB Connection and Server Start
-const PORT =  5001;
+const PORT =  process.env.PORT ||
+5001;
 
 mongoose.connect(process.env.MONGODB_URI)
     .then(() => {
