@@ -57,7 +57,7 @@ function MyTrips() {
 
   // GET API - Fetch All Trips
   const fetchTrips = () => {
-    fetch("http://localhost:5001/api/trips")
+    fetch("/api/trips")
       .then((response) => {
         if (!response.ok) throw new Error("Unable to load trips");
         return response.json();
@@ -83,8 +83,7 @@ function MyTrips() {
     if (!confirmDelete) return;
 
     try {
-      const response = await fetch(
-        `http://localhost:5001/api/trips/${id}`,
+      const response = await fetch(`/api/trips/${id}`,
         { method: "DELETE" }
       );
 
@@ -148,7 +147,7 @@ function MyTrips() {
 
     try {
       const response = await fetch(
-        `http://localhost:5001/api/trips/${trip._id}`,
+        `/api/trips/${trip._id}`,
         {
           method: "PUT",
           headers: {
