@@ -970,3 +970,70 @@ button,
     grid-template-columns: 1fr;
   }
 }
+/* ===== LOGIN & SIGNUP PAGES ===== */
+
+.auth-container {
+  width: 90%;
+  max-width: 450px;
+  margin: 55px auto;
+  padding: 35px;
+  background: #ffffff;
+  border: 1px solid #e2edf2;
+  border-radius: 18px;
+  box-shadow: 0 12px 35px #176b8715;
+  text-align: center;
+}
+
+.auth-container h2 {
+  color: #176b87;
+  font-size: 28px;
+  margin-bottom: 25px;
+}
+
+.auth-container form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.auth-container input {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 15px;
+  border: 1px solid #d6e3ea;
+  border-radius: 9px;
+  background: #fff;
+  color: #1e293b;
+  outline: none;
+}
+
+.auth-container input:focus {
+  border-color: #176b87;
+  box-shadow: 0 0 0 3px #176b871c;
+}
+
+.auth-container button {
+  min-height: 48px;
+  border: none;
+  border-radius: 9px;
+  background: linear-gradient(135deg, #176b87, #1595a8);
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.auth-container button:hover {
+  background: #10546b;
+}
+
+.auth-container p {
+  margin-top: 15px;
+  color: #176b87;
+}
+
+@media (max-width: 600px) {
+  .auth-container {
+    margin: 35px auto;
+    padding: 25px 20px;
+  }
+}

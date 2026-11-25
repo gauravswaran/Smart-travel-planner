@@ -1,10 +1,21 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const isLoggedIn = Boolean(localStorage.getItem("token"));
+  const user = JSON.parse(localStorage.getItem("user") || "null");
 
   const closeMenu = () => setMenuOpen(false);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    closeMenu();
+    navigate("/login");
+  };
 
   return (
     <nav className="navbar">
@@ -29,6 +40,18 @@ function Navbar() {
         <Link to="/my-trips" onClick={closeMenu}>My Trips</Link>
         <Link to="/services" onClick={closeMenu}>Services</Link>
         <Link to="/about" onClick={closeMenu}>About Us</Link>
+
+        {isLoggedIn ? (
+          <>
+            <span>Welcome, {user?.name || "User"}</span>
+            <button onClick={handleLogout}>Logout</button>
+          </>
+        ) : (
+          <>
+            <Link to="/login" onClick={closeMenu}>Login</Link>
+            <Link to="/signup" onClick={closeMenu}>Sign Up</Link>
+          </>
+        )}
       </div>
     </nav>
   );

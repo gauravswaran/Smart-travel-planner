@@ -14,6 +14,7 @@ app.use((req, res, next) => {
 });
 // Import Trip Routes
 const tripRoutes = require("./routes/tripRoutes");
+const AuthRoutes = require("./routes/AuthRoutes");
 
 // Home Route
 app.get("/", (req, res) => {
@@ -22,6 +23,7 @@ app.get("/", (req, res) => {
 
 // Connect Trip Routes
 app.use("/api/trips", tripRoutes);
+app.use("/api/Auth",AuthRoutes);
 
 // MongoDB Connection and Server Start
 const PORT =  process.env.PORT ||

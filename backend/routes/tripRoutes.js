@@ -2,13 +2,15 @@ const express = require("express");
 const router = express.Router();
 
 const Trip = require("../models/Trip");
+const authMiddleware = require("../Middlewere/AuthMiddlewere");
 
 console.log("TRIP ROUTES FILE LOADED");
 
+// Protect all trip routes
+router.use(authMiddleware);
+
 // POST API - Create New Trip
 router.post("/", async (req, res) => {
-  console.log("STEP 1: POST received");
-
   try {
     const { destination, travelDate, travelers, budget } = req.body;
 
@@ -16,14 +18,11 @@ router.post("/", async (req, res) => {
       destination,
       travelDate,
       travelers,
-      budget
+      budget,
+      user: req.userId
     });
 
-    console.log("STEP 2: Saving trip");
-
     const savedTrip = await newTrip.save();
-
-    console.log("STEP 3: Trip saved successfully");
 
     res.status(201).json({
       message: "Trip saved successfully!",
@@ -31,8 +30,6 @@ router.post("/", async (req, res) => {
     });
 
   } catch (error) {
-    console.log("SAVE ERROR:", error.message);
-
     res.status(500).json({
       message: "Error saving trip",
       error: error.message
@@ -40,10 +37,10 @@ router.post("/", async (req, res) => {
   }
 });
 
-// GET API - Get All Trips
+// GET API - Get Logged-in User's Trips
 router.get("/", async (req, res) => {
   try {
-    const trips = await Trip.find();
+    const trips = await Trip.find({ user: req.userId });
     res.status(200).json(trips);
 
   } catch (error) {
@@ -54,13 +51,11 @@ router.get("/", async (req, res) => {
   }
 });
 
-// PUT API - Update Trip
+// PUT API - Update Own Trip
 router.put("/:id", async (req, res) => {
-  console.log("PUT API HIT");
-
   try {
-    const updatedTrip = await Trip.findByIdAndUpdate(
-      req.params.id,
+    const updatedTrip = await Trip.findOneAndUpdate(
+      { _id: req.params.id, user: req.userId },
       req.body,
       { new: true, runValidators: true }
     );
@@ -84,10 +79,13 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-// DELETE API
+// DELETE API - Delete Own Trip
 router.delete("/:id", async (req, res) => {
   try {
-    const deletedTrip = await Trip.findByIdAndDelete(req.params.id);
+    const deletedTrip = await Trip.findOneAndDelete({
+      _id: req.params.id,
+      user: req.userId
+    });
 
     if (!deletedTrip) {
       return res.status(404).json({
@@ -101,7 +99,8 @@ router.delete("/:id", async (req, res) => {
 
   } catch (error) {
     res.status(500).json({
-      message: error.message
+      message: "Error deleting trip",
+      error: error.message
     });
   }
 });

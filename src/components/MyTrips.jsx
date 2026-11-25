@@ -55,9 +55,21 @@ function MyTrips() {
     });
   };
 
-  // GET API - Fetch All Trips
+  // GET API - Fetch Logged-in User's Trips
   const fetchTrips = () => {
-    fetch("/api/trips")
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      setError("Please login first to view your trips.");
+      setLoading(false);
+      return;
+    }
+
+    fetch("/api/trips", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
       .then((response) => {
         if (!response.ok) throw new Error("Unable to load trips");
         return response.json();
@@ -83,9 +95,18 @@ function MyTrips() {
     if (!confirmDelete) return;
 
     try {
-      const response = await fetch(`/api/trips/${id}`,
-        { method: "DELETE" }
-      );
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        throw new Error("Please login first.");
+      }
+
+      const response = await fetch(`/api/trips/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       if (!response.ok) {
         throw new Error("Unable to delete trip");
@@ -120,17 +141,11 @@ function MyTrips() {
 
     if (travelDate === null) return;
 
-    const travelers = prompt(
-      "Enter travelers:",
-      trip.travelers
-    );
+    const travelers = prompt("Enter travelers:", trip.travelers);
 
     if (travelers === null) return;
 
-    const budget = prompt(
-      "Enter budget:",
-      trip.budget
-    );
+    const budget = prompt("Enter budget:", trip.budget);
 
     if (budget === null) return;
 
@@ -146,21 +161,25 @@ function MyTrips() {
     }
 
     try {
-      const response = await fetch(
-        `/api/trips/${trip._id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            destination: destination.trim(),
-            travelDate,
-            travelers: Number(travelers),
-            budget: Number(budget),
-          }),
-        }
-      );
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        throw new Error("Please login first.");
+      }
+
+      const response = await fetch(`/api/trips/${trip._id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          destination: destination.trim(),
+          travelDate,
+          travelers: Number(travelers),
+          budget: Number(budget),
+        }),
+      });
 
       if (!response.ok) {
         throw new Error("Unable to update trip");

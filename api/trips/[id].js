@@ -1,16 +1,24 @@
 import mongoose from "mongoose";
 import Trip from "../../backend/models/Trip.js";
+import { authenticate } from "../_utils/auth.js";
 
 let cachedConnection = null;
 
 async function connectDB() {
-  if (cachedConnection) return;
+  if (mongoose.connection.readyState === 1) return;
 
-  cachedConnection = mongoose.connect(process.env.MONGODB_URI);
+  if (!cachedConnection) {
+    cachedConnection = mongoose.connect(process.env.MONGODB_URI);
+  }
+
   await cachedConnection;
 }
 
 export default async function handler(req, res) {
+  const userId = authenticate(req, res);
+
+  if (!userId) return;
+
   try {
     await connectDB();
 
@@ -23,9 +31,11 @@ export default async function handler(req, res) {
     }
 
     if (req.method === "PUT") {
-      const updatedTrip = await Trip.findByIdAndUpdate(
-        id,
-        req.body,
+      const { destination, travelDate, travelers, budget } = req.body;
+
+      const updatedTrip = await Trip.findOneAndUpdate(
+        { _id: id, user: userId },
+        { destination, travelDate, travelers, budget },
         { new: true, runValidators: true }
       );
 
@@ -35,11 +45,17 @@ export default async function handler(req, res) {
         });
       }
 
-      return res.status(200).json(updatedTrip);
+      return res.status(200).json({
+        message: "Trip updated successfully!",
+        trip: updatedTrip
+      });
     }
 
     if (req.method === "DELETE") {
-      const deletedTrip = await Trip.findByIdAndDelete(id);
+      const deletedTrip = await Trip.findOneAndDelete({
+        _id: id,
+        user: userId
+      });
 
       if (!deletedTrip) {
         return res.status(404).json({
@@ -55,11 +71,12 @@ export default async function handler(req, res) {
     return res.status(405).json({
       message: "Method not allowed"
     });
+
   } catch (error) {
-    cachedConnection = null;
+    console.error("Trip API error:", error);
 
     return res.status(500).json({
-      message: error.message
+      message: "Server error"
     });
   }
 }

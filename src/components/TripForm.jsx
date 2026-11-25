@@ -21,6 +21,7 @@ function TripForm() {
 
   const formatDate = (date) => {
     if (!date) return "";
+
     return new Date(`${date}T00:00:00`).toLocaleDateString("en-IN", {
       day: "numeric",
       month: "short",
@@ -108,10 +109,18 @@ function TripForm() {
     setLoading(true);
 
     try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        setError("Please login first to save your trip.");
+        return;
+      }
+
       const response = await fetch("/api/trips", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
         },
         body: JSON.stringify({
           destination: cleanDestination,
